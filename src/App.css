@@ -1,0 +1,64 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #101b1b;
+}
+
+.portfolio {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.portfolio canvas {
+  display: block;
+}
+
+.hero {
+  position: absolute;
+  top: 50%;
+  left: 7%;
+  transform: translateY(-50%);
+  color: #f8f3e9;
+  pointer-events: none;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.3);
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #e6c6a3;
+}
+
+.hero h1 {
+  font-size: clamp(40px, 6vw, 90px);
+  font-weight: 400;
+  letter-spacing: -3px;
+  margin: 18px 0;
+}
+
+.hero p {
+  font-size: clamp(13px, 1.3vw, 18px);
+  color: #e0dfd8;
+}
+
+.hint {
+  display: block;
+  margin-top: 60px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
