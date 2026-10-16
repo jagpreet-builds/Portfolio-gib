@@ -7,24 +7,18 @@ import {
   DoubleSide,
   Fog,
   PlaneGeometry,
-  Vector3,
 } from 'three'
 
-function getHeight(x: number, y: number) {
-  const hills =
+function terrainHeight(x: number, y: number) {
+  return (
     Math.sin(x * 0.13) * 1.2 +
-    Math.cos(y * 0.12) * 1.1
-
-  const ridges =
+    Math.cos(y * 0.12) * 1.1 +
     Math.sin(x * 0.35 + y * 0.17) * 0.45 +
-    Math.cos(y * 0.29 - x * 0.12) * 0.4
-
-  const detail =
+    Math.cos(y * 0.29 - x * 0.12) * 0.4 +
     Math.sin(x * 1.3) *
-    Math.cos(y * 1.1) *
-    0.08
-
-  return hills + ridges + detail
+      Math.cos(y * 1.1) *
+      0.08
+  )
 }
 
 function TerrainSurface() {
@@ -42,7 +36,7 @@ function TerrainSurface() {
       const x = position.getX(i)
       const y = position.getY(i)
 
-      const height = getHeight(x, y)
+      const height = terrainHeight(x, y)
 
       position.setZ(i, height)
 
@@ -51,21 +45,34 @@ function TerrainSurface() {
       if (height < 0.4) {
         colour.copy(low).lerp(
           mid,
-          Math.max(0, Math.min(1, (height + 2) / 2.4))
+          Math.max(
+            0,
+            Math.min(1, (height + 2) / 2.4)
+          )
         )
       } else {
         colour.copy(mid).lerp(
           high,
-          Math.max(0, Math.min(1, (height - 0.4) / 3))
+          Math.max(
+            0,
+            Math.min(1, (height - 0.4) / 3)
+          )
         )
       }
 
-      colors.push(colour.r, colour.g, colour.b)
+      colors.push(
+        colour.r,
+        colour.g,
+        colour.b
+      )
     }
 
     geo.setAttribute(
       'color',
-      new BufferAttribute(new Float32Array(colors), 3)
+      new BufferAttribute(
+        new Float32Array(colors),
+        3
+      )
     )
 
     geo.computeVertexNormals()
@@ -111,19 +118,22 @@ export default function NSWTerrain() {
   }, [camera, scene])
 
   useFrame((_, delta) => {
-    camera.position.z -= delta * 2.2
+    const dt = Math.min(delta, 0.05)
 
+    // Faster forward movement.
+    camera.position.z -= dt * 8
+
+    // Descend toward the landscape.
     camera.position.y = Math.max(
       5,
-      camera.position.y - delta * 0.25
+      camera.position.y - dt * 1.2
     )
 
+    // Keep looking ahead.
     camera.lookAt(
-      new Vector3(
-        0,
-        0,
-        camera.position.z - 25
-      )
+      0,
+      0,
+      camera.position.z - 25
     )
   })
 
@@ -138,7 +148,11 @@ export default function NSWTerrain() {
       />
 
       <hemisphereLight
-        args={['#d9e7ee', '#4c5540', 1.4]}
+        args={[
+          '#d9e7ee',
+          '#4c5540',
+          1.4,
+        ]}
       />
 
       <TerrainSurface />

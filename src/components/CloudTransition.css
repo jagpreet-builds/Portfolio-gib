@@ -5,92 +5,139 @@
   z-index: 100;
   pointer-events: none;
   overflow: hidden;
+
   opacity: 0;
-  transition: opacity 1.5s ease-in;
+  visibility: hidden;
+
+  transition:
+    opacity 1.2s ease,
+    visibility 0s linear 1.2s;
 }
 
 .cloud-transition.active {
   opacity: 1;
+  visibility: visible;
+
+  transition:
+    opacity 1.2s ease,
+    visibility 0s;
 }
 
-.cloud-layer {
+/* Once the terrain is ready, clouds drift away */
+.cloud-transition.revealing {
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity 2.4s ease-out,
+    visibility 0s linear 2.4s;
+}
+
+/* Very light atmospheric haze */
+.cloud-haze {
   position: absolute;
-  inset: -30%;
+  inset: 0;
+
+  background: linear-gradient(
+    180deg,
+    rgba(190, 207, 220, 0.08),
+    rgba(224, 234, 242, 0.22),
+    rgba(205, 220, 230, 0.12)
+  );
+}
+
+/* Shared cloud shapes */
+.cloud-sheet {
+  position: absolute;
+  width: 150%;
+  height: 130%;
+  left: -25%;
+  top: -15%;
 
   background:
     radial-gradient(
-      ellipse at 20% 60%,
-      rgba(235, 242, 248, 0.95) 0%,
-      rgba(215, 227, 238, 0.65) 18%,
-      transparent 48%
+      ellipse 28% 20% at 20% 45%,
+      rgba(245, 249, 252, 0.72),
+      rgba(225, 235, 242, 0.34) 45%,
+      transparent 80%
     ),
     radial-gradient(
-      ellipse at 70% 35%,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(224, 234, 243, 0.6) 25%,
-      transparent 55%
+      ellipse 34% 24% at 70% 30%,
+      rgba(255, 255, 255, 0.7),
+      rgba(226, 236, 243, 0.28) 50%,
+      transparent 85%
     ),
     radial-gradient(
-      ellipse at 55% 80%,
-      rgba(240, 246, 250, 0.85) 0%,
-      transparent 50%
+      ellipse 30% 20% at 55% 75%,
+      rgba(240, 247, 251, 0.6),
+      rgba(215, 228, 237, 0.2) 50%,
+      transparent 80%
     );
 
-  filter: blur(55px);
-  transform: scale(1.3);
+  filter: blur(45px);
+  will-change: transform;
 }
 
-.cloud-layer-back {
-  opacity: 0.65;
-  animation: cloud-drift-left 14s linear infinite;
+/* Distant cloud layer */
+.cloud-sheet-one {
+  opacity: 0.55;
+  animation: cloud-pass-one 9s ease-in-out infinite alternate;
 }
 
-.cloud-layer-middle {
-  opacity: 0.8;
-  animation: cloud-drift-right 11s linear infinite;
+/* Mid-distance cloud layer */
+.cloud-sheet-two {
+  opacity: 0.6;
+  animation: cloud-pass-two 7s ease-in-out infinite alternate;
 }
 
-.cloud-layer-front {
-  opacity: 0.95;
-  animation: cloud-drift-left 8s linear infinite;
+/* Foreground cloud layer */
+.cloud-sheet-three {
+  opacity: 0.55;
+  animation: cloud-pass-three 5s ease-in-out infinite alternate;
 }
 
-.cloud-whiteout {
+/* Thin mist rather than solid white */
+.cloud-mist {
   position: absolute;
   inset: 0;
-  background: #eaf1f6;
-  opacity: 0;
-  transition: opacity 2s ease-in 1.5s;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(225, 235, 243, 0.18),
+    rgba(210, 225, 237, 0.1) 55%,
+    transparent 90%
+  );
+
+  opacity: 0.7;
 }
 
-.cloud-transition.active .cloud-whiteout {
-  opacity: 1;
-}
-
-.cloud-transition.revealing {
-  opacity: 0;
-  transition: opacity 2.5s ease-out;
-}
-
-.cloud-transition.revealing .cloud-whiteout {
-  opacity: 0;
-  transition: opacity 2.5s ease-out;
-}
-
-@keyframes cloud-drift-left {
+/* Simulates clouds moving past the camera */
+@keyframes cloud-pass-one {
   from {
-    transform: translateX(8%) scale(1.3);
+    transform: translate3d(-7%, 3%, 0) scale(1.05);
   }
+
   to {
-    transform: translateX(-8%) scale(1.5);
+    transform: translate3d(6%, -5%, 0) scale(1.2);
   }
 }
 
-@keyframes cloud-drift-right {
+@keyframes cloud-pass-two {
   from {
-    transform: translateX(-8%) scale(1.3);
+    transform: translate3d(8%, -4%, 0) scale(1.1);
   }
+
   to {
-    transform: translateX(8%) scale(1.5);
+    transform: translate3d(-6%, 6%, 0) scale(1.3);
+  }
+}
+
+@keyframes cloud-pass-three {
+  from {
+    transform: translate3d(-4%, 8%, 0) scale(1.1);
+  }
+
+  to {
+    transform: translate3d(5%, -8%, 0) scale(1.45);
   }
 }

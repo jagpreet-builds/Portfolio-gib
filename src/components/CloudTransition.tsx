@@ -19,10 +19,13 @@ export default function CloudTransition({
       ].join(' ')}
       aria-hidden="true"
     >
-      <div className="cloud-layer cloud-layer-back" />
-      <div className="cloud-layer cloud-layer-middle" />
-      <div className="cloud-layer cloud-layer-front" />
-      <div className="cloud-whiteout" />
+      <div className="cloud-haze" />
+
+      <div className="cloud-sheet cloud-sheet-one" />
+      <div className="cloud-sheet cloud-sheet-two" />
+      <div className="cloud-sheet cloud-sheet-three" />
+
+      <div className="cloud-mist" />
     </div>
   )
 }

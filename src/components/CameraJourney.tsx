@@ -24,6 +24,7 @@ export default function CameraJourney({
   const { camera, scene } = useThree()
 
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
+  const pendingStartRef = useRef<gsap.core.Tween | null>(null)
 
   const callbacksRef = useRef({
     onCloudTransition,
@@ -52,22 +53,31 @@ export default function CameraJourney({
       camera.lookAt(0, 0, 0)
     }
 
-    function startJourney() {
+    function cancelJourney() {
       timelineRef.current?.kill()
       timelineRef.current = null
+
+      pendingStartRef.current?.kill()
+      pendingStartRef.current = null
+    }
+
+    function startJourney() {
+      cancelJourney()
 
       callbacksRef.current.onReset()
       resetCamera()
 
-      // Wait for React to mount Earth after reset.
-      // GSAP checks until the mesh is available.
-      const findEarth = gsap.delayedCall(0.05, function check() {
+      // Wait until Earth is mounted and ready.
+      function waitForEarth() {
         const earth = scene.getObjectByName('earth') as
           | Mesh
           | undefined
 
         if (!earth) {
-          findEarth.restart(true)
+          pendingStartRef.current = gsap.delayedCall(
+            0.05,
+            waitForEarth
+          )
           return
         }
 
@@ -77,6 +87,8 @@ export default function CameraJourney({
           paused: true,
         })
 
+        // Stage 1: Rotate Earth toward Australia.
+        // 0–4.5 seconds
         timeline.to(
           earth.rotation,
           {
@@ -87,6 +99,8 @@ export default function CameraJourney({
           0
         )
 
+        // Stage 2: Initial approach.
+        // 2–7 seconds
         timeline.to(
           camera.position,
           {
@@ -99,32 +113,51 @@ export default function CameraJourney({
           2
         )
 
-        // Clouds begin after Earth zoom.
+        // Stage 3: Continue falling toward Earth.
+        // 7–9.8 seconds
+        timeline.to(
+          camera.position,
+          {
+            x: 0.55,
+            y: -0.3,
+            z: 2.15,
+            duration: 2.8,
+            ease: 'power2.in',
+          },
+          7
+        )
+
+        // Begin cloud fly-through at 7 seconds.
         timeline.call(
-          () => callbacksRef.current.onCloudTransition(),
+          () =>
+            callbacksRef.current.onCloudTransition(),
           [],
           7
         )
 
-        // Switch scenes while clouds cover the view.
+        // Switch to NSW terrain while clouds pass.
         timeline.call(
-          () => callbacksRef.current.onShowTerrain(),
+          () =>
+            callbacksRef.current.onShowTerrain(),
           [],
-          10.2
+          9.8
         )
 
-        // Reveal the terrain.
+        // Thin the clouds to reveal the landscape.
         timeline.call(
-          () => callbacksRef.current.onRevealTerrain(),
+          () =>
+            callbacksRef.current.onRevealTerrain(),
           [],
-          10.5
+          10.1
         )
 
         timelineRef.current = timeline
         timeline.play()
 
         console.log('Earth journey started')
-      })
+      }
+
+      waitForEarth()
     }
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -136,9 +169,7 @@ export default function CameraJourney({
       }
 
       if (event.code === 'KeyR') {
-        timelineRef.current?.kill()
-        timelineRef.current = null
-
+        cancelJourney()
         callbacksRef.current.onReset()
         resetCamera()
       }
@@ -150,11 +181,10 @@ export default function CameraJourney({
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
-      timelineRef.current?.kill()
+      cancelJourney()
     }
   }, [camera, scene])
 
-  // The scene stage is handled by App.
   void sceneStage
 
   return null

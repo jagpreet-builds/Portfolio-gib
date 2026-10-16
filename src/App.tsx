@@ -1,12 +1,17 @@
 
-import { Suspense, useCallback, useState } from 'react'
+import {
+  Suspense,
+  useCallback,
+  useState,
+} from 'react'
+
 import { Canvas } from '@react-three/fiber'
 import { Stars } from '@react-three/drei'
 
 import Earth from './components/Earth'
 import Atmosphere from './components/Atmosphere'
 import CameraJourney from './components/CameraJourney'
-import CloudTransition from './components/CloudTransition'
+import CloudDive from './components/CloudDive'
 import NSWTerrain from './components/NSWTerrain'
 
 type SceneStage = 'earth' | 'terrain'
@@ -15,12 +20,15 @@ export default function App() {
   const [sceneStage, setSceneStage] =
     useState<SceneStage>('earth')
 
-  const [cloudActive, setCloudActive] = useState(false)
-  const [revealing, setRevealing] = useState(false)
+  const [cloudActive, setCloudActive] =
+    useState(false)
+
+  const [cloudExiting, setCloudExiting] =
+    useState(false)
 
   const startClouds = useCallback(() => {
     setCloudActive(true)
-    setRevealing(false)
+    setCloudExiting(false)
   }, [])
 
   const showTerrain = useCallback(() => {
@@ -28,13 +36,13 @@ export default function App() {
   }, [])
 
   const revealTerrain = useCallback(() => {
-    setRevealing(true)
+    setCloudExiting(true)
   }, [])
 
   const resetJourney = useCallback(() => {
     setSceneStage('earth')
     setCloudActive(false)
-    setRevealing(false)
+    setCloudExiting(false)
   }, [])
 
   return (
@@ -93,9 +101,9 @@ export default function App() {
         />
       </Canvas>
 
-      <CloudTransition
+      <CloudDive
         active={cloudActive}
-        revealing={revealing}
+        exiting={cloudExiting}
       />
 
       <div

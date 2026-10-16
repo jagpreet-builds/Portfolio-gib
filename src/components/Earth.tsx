@@ -11,7 +11,10 @@ export default function Earth() {
   earthTexture.colorSpace = SRGBColorSpace
 
   return (
-    <mesh name="earth" rotation={[-0.5, 1.5, 0]}>
+    <mesh
+      name="earth"
+      rotation={[-0.5, 1.5, 0]}
+    >
       <sphereGeometry args={[2, 96, 96]} />
 
       <meshStandardMaterial
